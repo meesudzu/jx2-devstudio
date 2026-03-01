@@ -3,6 +3,20 @@
    Dark theme inspired by VS Code Dark+
    ====================================== */
 
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('/fonts/SourceCodePro-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('/fonts/NotoSansSC.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   /* Color palette */
   --bg-primary: #0d1117;
@@ -39,7 +53,10 @@
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --font-mono: 'Source Code Pro', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+
+  /* Chinese fallback */
+  --font-chinese: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
 
   /* Sizes */
   --sidebar-width: 280px;
@@ -306,6 +323,25 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 13px;
+  font-family: 'Noto Sans SC', 'Source Code Pro', var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.encoding-gb18030 .tree-name {
+  font-family: 'Noto Sans SC', 'Source Code Pro', var(--font-sans);
+}
+
+.tree-item.dirty .tree-name {
+  font-style: italic;
+  color: var(--accent-orange);
+}
+
+.tree-dirty-dot {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* ---- Tab Bar ---- */
@@ -356,6 +392,14 @@ body {
   flex: 1;
 }
 
+.encoding-gb18030 .tab-name {
+  font-family: 'Noto Sans SC', 'Source Code Pro', var(--font-sans);
+}
+
+.ag-tooltip {
+  font-family: 'Noto Sans SC', 'Source Code Pro', var(--font-sans) !important;
+}
+
 .tab-dot {
   width: 8px;
   height: 8px;
@@ -402,13 +446,16 @@ body {
 
 .editor-pane {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   position: relative;
   overflow: hidden;
 }
 
 .monaco-editor-container {
+  flex: 1;
   width: 100%;
-  height: 100%;
+  min-height: 0;
 }
 
 /* ---- Welcome Screen ---- */
@@ -647,6 +694,7 @@ body {
 .search-result-file {
   font-size: 12px;
   color: var(--text-link);
+  font-family: 'Noto Sans SC', 'Source Code Pro', var(--font-sans);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -654,7 +702,7 @@ body {
 .search-result-line {
   font-size: 11px;
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
+  font-family: 'Source Code Pro', 'Noto Sans SC', var(--font-mono);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -662,7 +710,7 @@ body {
 .search-result-content {
   font-size: 12px;
   color: var(--text-secondary);
-  font-family: var(--font-mono);
+  font-family: 'Noto Sans SC', 'Source Code Pro', var(--font-mono);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -735,6 +783,20 @@ body {
   --ag-font-family: var(--font-mono) !important;
   --ag-font-size: 12px !important;
   --ag-selected-row-background-color: var(--bg-active) !important;
+}
+
+/* Allow AG Grid headers to wrap text */
+.ag-theme-alpine-dark .ag-header-cell-label {
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
+  line-height: 1.2;
+}
+
+.ag-theme-alpine-dark .ag-header-cell-text {
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
 }
 
 /* ---- Log Watcher ---- */

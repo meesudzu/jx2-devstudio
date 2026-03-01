@@ -23,16 +23,20 @@ export function TabularView({ tab }: TabularViewProps) {
         const delimiter = headerLine.includes('\t') ? '\t' : ','
         const headers = headerLine.split(delimiter)
 
-        const columnDefs = headers.map((header, index) => ({
-            headerName: header.trim() || `Col ${index + 1}`,
-            field: `col_${index}`,
-            editable: true,
-            resizable: true,
-            sortable: true,
-            filter: true,
-            minWidth: 80,
-            flex: 1,
-        }))
+        const columnDefs = headers.map((header, index) => {
+            const headerName = header.trim() || `Col ${index + 1}`
+            return {
+                headerName,
+                headerTooltip: headerName,
+                field: `col_${index}`,
+                editable: true,
+                resizable: true,
+                sortable: true,
+                filter: true,
+                minWidth: 80,
+                width: 150,
+            }
+        })
 
         const rowData = lines.slice(1).map((line, rowIndex) => {
             const cells = line.split(delimiter)
@@ -56,7 +60,7 @@ export function TabularView({ tab }: TabularViewProps) {
 
         // Reconstruct the changed line
         const dataRowIndex = params.data.__rowIndex
-        const newCells = headers.map((_, colIndex) => params.data[`col_${colIndex}`] ?? '')
+        const newCells = headers.map((_: string, colIndex: number) => params.data[`col_${colIndex}`] ?? '')
         lines[dataRowIndex] = newCells.join(delimiter)
 
         const newContent = lines.join('\r\n')
@@ -76,7 +80,7 @@ export function TabularView({ tab }: TabularViewProps) {
 
     return (
         <div className="tabular-view">
-            <div className="tabular-grid ag-theme-alpine-dark">
+            <div className="tabular-grid ag-theme-alpine-dark" style={{ width: '100%', height: '100%' }}>
                 <AgGridReact
                     columnDefs={columnDefs}
                     rowData={rowData}
@@ -86,7 +90,11 @@ export function TabularView({ tab }: TabularViewProps) {
                         sortable: true,
                         filter: true,
                         editable: true,
+                        wrapText: true,
+                        autoHeight: true,
+                        tooltipValueGetter: (params: any) => params.value,
                     }}
+                    enableBrowserTooltips={true}
                     animateRows={true}
                     suppressRowClickSelection={true}
                     rowSelection="multiple"

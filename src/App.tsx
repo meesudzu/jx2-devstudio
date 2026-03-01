@@ -77,7 +77,7 @@ export default function App() {
     const activeTab = openTabs.find(t => t.id === activeTabId)
 
     return (
-        <div className="app-container">
+        <div className={`app-container ${activeTab ? `encoding-${activeTab.encoding}` : ''}`}>
             {/* Title bar */}
             <div className="titlebar">
                 <span className="titlebar-logo"><SwordIcon size={14} /> JX2</span>

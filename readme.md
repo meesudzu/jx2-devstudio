@@ -22,8 +22,8 @@ JX2 game servers use **legacy encodings** that standard editors mishandle:
 
 | File Type | Encoding | Content |
 |-----------|----------|---------|
-| `.lua` scripts | **GB18030** | Chinese comments, variable names, NPC dialogs |
-| `.txt` configs | **Windows-1252** | Vietnamese item names, skill descriptions |
+| `.lua` scripts | **GB18030** and **Windows-1252** | Chinese comments, variable names, NPC dialogs |
+| `.txt` configs | **GB18030** and **Windows-1252** | Vietnamese item names, skill descriptions |
 | Filenames | **GB18030** | Chinese characters in directory/file names |
 
 Standard IDEs (VS Code, Sublime) either corrupt these files or can't search across encodings. **JX2 DevStudio solves this.**

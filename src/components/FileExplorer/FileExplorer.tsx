@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
 import type { FileEntry, Encoding } from '../../types'
-import { FolderIcon, FolderOpenIcon, FileIcon, ChevronIcon, GearIcon } from '../Icons'
+import { FolderIcon, FolderOpenIcon, FileIcon, ChevronIcon, GearIcon, DotIcon } from '../Icons'
 
 function getFileIcon(entry: FileEntry) {
     if (entry.isDirectory) return { icon: <FolderIcon />, className: 'folder' }
@@ -30,6 +30,7 @@ function TreeItem({ entry, depth }: TreeItemProps) {
 
     const isExpanded = expandedDirs.has(entry.path)
     const isActive = openTabs.some(t => t.filePath === entry.path && t.id === activeTabId)
+    const isDirty = !entry.isDirectory && openTabs.some(t => t.filePath === entry.path && t.isDirty)
     const { icon, className } = getFileIcon(entry)
 
     const handleClick = useCallback(async () => {
@@ -68,7 +69,7 @@ function TreeItem({ entry, depth }: TreeItemProps) {
     return (
         <>
             <div
-                className={`tree-item ${isActive ? 'active' : ''}`}
+                className={`tree-item ${isActive ? 'active' : ''} ${isDirty ? 'dirty' : ''}`}
                 style={{ '--indent': `${indent}px` } as React.CSSProperties}
                 onClick={handleClick}
                 title={entry.path}
@@ -79,7 +80,14 @@ function TreeItem({ entry, depth }: TreeItemProps) {
                     </span>
                 )}
                 <span className={`tree-icon ${className}`}>{icon}</span>
-                <span className="tree-name">{entry.displayName}</span>
+                <span className="tree-name">
+                    {entry.displayName}
+                    {isDirty && (
+                        <span className="tree-dirty-dot" title="Unsaved changes">
+                            <DotIcon size={6} color="var(--accent-orange)" />
+                        </span>
+                    )}
+                </span>
             </div>
             {entry.isDirectory && isExpanded && children.map((child) => (
                 <TreeItem key={child.path} entry={child} depth={depth + 1} />

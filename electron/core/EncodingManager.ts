@@ -113,16 +113,14 @@ export class EncodingManager {
      * 
      * Strategy:
      * 1. UTF-8 BOM (EF BB BF) → UTF-8
-     * 2. Valid strict UTF-8 with multibyte sequences → UTF-8
-     * 3. GB18030 double-byte patterns (lead byte 0x81-0xFE) → GB18030
-     * 4. High bytes present but not GB18030 → Windows-1252
-     * 5. Pure ASCII → UTF-8 (safe default)
+     * 2. GB18030 double-byte patterns scoring vs Windows-1252 scoring
+     * 3. Default → Windows-1252 (most common for JX2 .txt and .lua files)
      */
     detectEncoding(buffer: Buffer): Encoding {
-        if (buffer.length === 0) return 'gb18030'
+        if (buffer.length === 0) return 'windows-1252'
 
-        // If pure ASCII, encoding doesn't matter — default to gb18030
-        if (buffer.every(b => b <= 0x7F)) return 'gb18030'
+        // If pure ASCII, encoding doesn't matter — default to windows-1252
+        if (buffer.every(b => b <= 0x7F)) return 'windows-1252'
 
         // Check for UTF-8 BOM
         if (buffer.length >= 3 && buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
@@ -136,14 +134,13 @@ export class EncodingManager {
         if (gb18030Score > win1252Score) return 'gb18030'
         if (win1252Score > gb18030Score) return 'windows-1252'
 
-        // Tie or both zero — default to gb18030
-        return 'gb18030'
+        // Tie or both zero — default to windows-1252
+        return 'windows-1252'
     }
 
     /**
      * Detect encoding with file context.
-     * Both .lua and .txt can be either GB18030 or Windows-1252.
-     * Uses pure byte-pattern heuristics — no extension-based assumptions.
+     * .txt and .lua default to windows-1252 unless byte heuristics strongly suggest GB18030.
      */
     detectEncodingWithHint(buffer: Buffer, _filePath: string): Encoding {
         return this.detectEncoding(buffer)

@@ -13,9 +13,9 @@ export function EditorPane({ tab }: EditorPaneProps) {
     const editorRef = useRef<any>(null)
     const [showGrid, setShowGrid] = useState(false)
 
-    // Reset grid view when switching tabs
+    // Reset to text view by default when switching tabs
     useEffect(() => {
-        setShowGrid(tab?.isTabular ?? false)
+        setShowGrid(false)
     }, [tab?.id])
 
     const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
@@ -181,7 +181,9 @@ export function EditorPane({ tab }: EditorPaneProps) {
                     onMount={handleEditorDidMount}
                     theme="jx2-dark"
                     options={{
-                        fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                        fontFamily: tab.encoding === 'gb18030'
+                            ? "'Noto Sans SC', 'Source Code Pro', 'Microsoft YaHei', monospace"
+                            : "'Source Code Pro', 'Noto Sans SC', 'JetBrains Mono', monospace",
                         fontSize: 13,
                         lineHeight: 20,
                         minimap: { enabled: true, scale: 1 },
