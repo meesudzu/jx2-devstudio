@@ -119,58 +119,33 @@ export class EncodingManager {
      * 5. Pure ASCII → UTF-8 (safe default)
      */
     detectEncoding(buffer: Buffer): Encoding {
-        if (buffer.length === 0) return 'utf-8'
+        if (buffer.length === 0) return 'gb18030'
+
+        // If pure ASCII, encoding doesn't matter — default to gb18030
+        if (buffer.every(b => b <= 0x7F)) return 'gb18030'
 
         // Check for UTF-8 BOM
         if (buffer.length >= 3 && buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
             return 'utf-8'
         }
 
-        // Try strict UTF-8 validation
-        if (this.isValidUtf8(buffer)) {
-            // Check if it actually has multibyte sequences (not just ASCII)
-            const hasMultibyte = buffer.some(b => b > 0x7F)
-            if (hasMultibyte) return 'utf-8'
-            // Pure ASCII — check file extension or default
-            return 'utf-8'
-        }
-
-        // Check for GB18030 patterns
+        // Check for GB18030 vs Windows-1252 using byte-pattern scoring
         const gb18030Score = this.scoreGb18030(buffer)
         const win1252Score = this.scoreWindows1252(buffer)
 
         if (gb18030Score > win1252Score) return 'gb18030'
-        if (win1252Score > 0) return 'windows-1252'
+        if (win1252Score > gb18030Score) return 'windows-1252'
 
-        return 'utf-8'
+        // Tie or both zero — default to gb18030
+        return 'gb18030'
     }
 
     /**
-     * Detect encoding with a file-extension hint.
-     * .lua files in JX2 are typically GB18030, .txt configs are Windows-1252.
+     * Detect encoding with file context.
+     * Both .lua and .txt can be either GB18030 or Windows-1252.
+     * Uses pure byte-pattern heuristics — no extension-based assumptions.
      */
-    detectEncodingWithHint(buffer: Buffer, filePath: string): Encoding {
-        const ext = path.extname(filePath).toLowerCase()
-
-        // If pure ASCII, the encoding doesn't matter
-        if (buffer.every(b => b <= 0x7F)) return 'utf-8'
-
-        // Check for UTF-8 BOM
-        if (buffer.length >= 3 && buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
-            return 'utf-8'
-        }
-
-        // Try strict UTF-8 first
-        if (this.isValidUtf8(buffer)) {
-            return 'utf-8'
-        }
-
-        // Use extension hint to break ties
-        if (ext === '.lua') return 'gb18030'
-        if (ext === '.txt') return 'windows-1252'
-        if (ext === '.ini') return 'gb18030'
-
-        // Fall back to heuristic scoring
+    detectEncodingWithHint(buffer: Buffer, _filePath: string): Encoding {
         return this.detectEncoding(buffer)
     }
 

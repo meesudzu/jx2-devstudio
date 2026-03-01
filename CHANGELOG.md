@@ -55,6 +55,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
   - Auto-upload binaries to GitHub Release with generated release notes
   - Platform-specific npm scripts: `build:win`, `build:mac`, `build:linux`
 
+### Changed
+- **Encoding Toggle** — now only cycles between GB18030 ↔ Windows-1252 (removed UTF-8 from cycle)
+- **Encoding Detection** — removed file-extension bias; both `.lua` and `.txt` can be either GB18030 or Windows-1252, detection uses pure byte-pattern heuristics
+
 ### Planned
 - **Remote Connection** (v1.6.0) — WSL/SSH backend for remote file access, terminal, log watching
 - Lua autocomplete for JX2 API functions

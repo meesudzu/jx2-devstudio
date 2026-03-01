@@ -4,8 +4,8 @@
 
 - [x] Project scaffolding (Electron + React + Vite)
 - [x] EncodingManager — raw byte read/write/cache for GB18030, Windows-1252, UTF-8
-- [x] Encoding detection heuristics (BOM, byte scoring, extension hints)
-- [x] Status bar encoding toggle (cycle GB18030 → Win-1252 → UTF-8)
+- [x] Encoding detection heuristics (byte scoring, no extension bias — both .lua and .txt can be either encoding)
+- [x] Status bar encoding toggle (toggle between GB18030 ↔ Windows-1252)
 - [x] File Explorer with GB18030 filename decoding
 - [x] Lazy-loading directory tree
 - [x] Tab-based file system

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
 import type { Encoding } from '../../types'
 
-const ENCODINGS: Encoding[] = ['gb18030', 'windows-1252', 'utf-8']
+const ENCODINGS: Encoding[] = ['gb18030', 'windows-1252']
 
 export function StatusBar() {
     const { openTabs, activeTabId, updateTabEncoding, projectRoot } = useEditorStore()
