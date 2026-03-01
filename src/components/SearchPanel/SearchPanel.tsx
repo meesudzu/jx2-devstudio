@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
 import type { SearchResult, SearchMatch, Encoding } from '../../types'
+import { SearchIcon } from '../Icons'
 
 export function SearchPanel() {
     const {
@@ -70,12 +71,12 @@ export function SearchPanel() {
     return (
         <div className="search-panel">
             <div className="search-header">
-                <span style={{ fontSize: 14 }}>🔍</span>
+                <SearchIcon size={14} />
                 <input
                     ref={inputRef}
                     className="search-input"
                     type="text"
-                    placeholder="Search across all encodings (UTF-8, GB18030, Windows-1252)..."
+                    placeholder="Search across all encodings (GB18030, Windows-1252)..."
                     value={localQuery}
                     onChange={(e) => setLocalQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -85,7 +86,7 @@ export function SearchPanel() {
                     onClick={handleSearch}
                     disabled={isSearching || !localQuery.trim()}
                 >
-                    {isSearching ? '⏳ Searching...' : 'Search'}
+                    {isSearching ? 'Searching...' : 'Search'}
                 </button>
             </div>
 

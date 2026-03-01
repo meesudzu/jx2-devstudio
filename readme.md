@@ -59,6 +59,20 @@ Standard IDEs (VS Code, Sublime) either corrupt these files or can't search acro
 - **Node.js 20+** (install via [nvm](https://github.com/nvm-sh/nvm))
 - **Git**
 
+#### Linux / WSL Required Packages
+
+Electron needs these system libraries to run. Install them first:
+
+```bash
+sudo apt-get update && sudo apt-get install -y \
+  libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+  libcups2 libdrm2 libgtk-3-0 libgbm1 libasound2 \
+  libxshmfence1 libx11-xcb1 libxcomposite1 libxdamage1 \
+  libxrandr2 libpango-1.0-0 libcairo2
+```
+
+> **WSL note:** You also need a GUI display server. **Windows 11** has WSLg built-in (works automatically). On **Windows 10**, install [VcXsrv](https://sourceforge.net/projects/vcxsrv/) and run `export DISPLAY=:0` before starting the app.
+
 ### Install & Run
 
 ```bash

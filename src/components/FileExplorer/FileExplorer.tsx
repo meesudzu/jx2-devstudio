@@ -1,20 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
 import type { FileEntry, Encoding } from '../../types'
-
-const FILE_ICONS: Record<string, { icon: string; className: string }> = {
-    '.lua': { icon: '📜', className: 'lua' },
-    '.txt': { icon: '📄', className: 'txt' },
-    '.ini': { icon: '⚙️', className: 'ini' },
-    '.cfg': { icon: '⚙️', className: 'ini' },
-    '.log': { icon: '📋', className: 'txt' },
-    '.xml': { icon: '📰', className: 'txt' },
-}
+import { FolderIcon, FolderOpenIcon, FileIcon, ChevronIcon, GearIcon } from '../Icons'
 
 function getFileIcon(entry: FileEntry) {
-    if (entry.isDirectory) return { icon: '📁', className: 'folder' }
+    if (entry.isDirectory) return { icon: <FolderIcon />, className: 'folder' }
     const ext = entry.extension || ''
-    return FILE_ICONS[ext] || { icon: '📄', className: 'txt' }
+    if (ext === '.lua') return { icon: <FileIcon />, className: 'lua' }
+    if (ext === '.ini' || ext === '.cfg') return { icon: <GearIcon />, className: 'ini' }
+    return { icon: <FileIcon />, className: 'txt' }
 }
 
 interface TreeItemProps {
@@ -81,7 +75,7 @@ function TreeItem({ entry, depth }: TreeItemProps) {
             >
                 {entry.isDirectory && (
                     <span className={`tree-icon chevron ${isExpanded ? 'expanded' : ''}`}>
-                        ▶
+                        <ChevronIcon />
                     </span>
                 )}
                 <span className={`tree-icon ${className}`}>{icon}</span>
@@ -101,7 +95,7 @@ export function FileExplorer() {
         return (
             <div className="file-tree">
                 <div className="empty-state">
-                    <div className="empty-state-icon">📂</div>
+                    <div className="empty-state-icon"><FolderOpenIcon size={32} /></div>
                     <span>No folder open</span>
                     <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                         Use Ctrl+O to open a project

@@ -6,6 +6,7 @@ import { EditorPane } from './components/Editor/EditorPane'
 import { StatusBar } from './components/StatusBar/StatusBar'
 import { SearchPanel } from './components/SearchPanel/SearchPanel'
 import { LogWatcher } from './components/LogWatcher/LogWatcher'
+import { FolderIcon, SearchIcon, TerminalIcon, SwordIcon } from './components/Icons'
 
 export default function App() {
     const {
@@ -79,21 +80,21 @@ export default function App() {
         <div className="app-container">
             {/* Title bar */}
             <div className="titlebar">
-                <span className="titlebar-logo">JX2</span>
+                <span className="titlebar-logo"><SwordIcon size={14} /> JX2</span>
                 <span className="titlebar-title">
                     DevStudio {projectRoot ? `— ${projectRoot.split('/').pop()}` : ''}
                 </span>
                 <div className="titlebar-actions">
                     <button className="titlebar-btn" onClick={handleOpenFolder} title="Open Folder (Ctrl+O)">
-                        📂
+                        <FolderIcon />
                     </button>
                     <button className={`titlebar-btn ${showSearch ? 'active' : ''}`}
                         onClick={toggleSearch} title="Search (Ctrl+Shift+F)">
-                        🔍
+                        <SearchIcon />
                     </button>
                     <button className={`titlebar-btn ${showLogPanel ? 'active' : ''}`}
                         onClick={toggleLogPanel} title="Log Watcher (Ctrl+`)">
-                        📋
+                        <TerminalIcon />
                     </button>
                 </div>
             </div>
@@ -106,7 +107,7 @@ export default function App() {
                         <span className="sidebar-title">Explorer</span>
                         <div className="sidebar-actions">
                             <button className="sidebar-btn" onClick={handleOpenFolder} title="Open Folder">
-                                📂
+                                <FolderIcon />
                             </button>
                         </div>
                     </div>
@@ -128,7 +129,7 @@ export default function App() {
                                 A specialized IDE for JX2 game server development with multi-encoding support for GB18030 &amp; Windows-1252
                             </div>
                             <button className="welcome-btn" onClick={handleOpenFolder}>
-                                📂 Open Project Folder
+                                <FolderIcon size={18} /> Open Project Folder
                             </button>
                             <div className="welcome-shortcuts">
                                 <div className="welcome-shortcut">

@@ -4,6 +4,7 @@ import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import type { OpenTab } from '../../stores/editorStore'
 import { useEditorStore } from '../../stores/editorStore'
+import { GridIcon } from '../Icons'
 
 interface TabularViewProps {
     tab: OpenTab
@@ -66,7 +67,7 @@ export function TabularView({ tab }: TabularViewProps) {
         return (
             <div className="tabular-view">
                 <div className="empty-state">
-                    <div className="empty-state-icon">📊</div>
+                    <div className="empty-state-icon"><GridIcon size={32} /></div>
                     <span>No tabular data found</span>
                 </div>
             </div>

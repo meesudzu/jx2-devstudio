@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
 import type { Encoding } from '../../types'
+import { FolderIcon, EncodingIcon, DotIcon } from '../Icons'
 
 const ENCODINGS: Encoding[] = ['gb18030', 'windows-1252']
 
@@ -30,7 +31,7 @@ export function StatusBar() {
             <div className="statusbar-left">
                 {projectRoot && (
                     <span className="status-item" title={projectRoot}>
-                        📂 {projectRoot.split('/').pop()}
+                        <FolderIcon size={12} /> {projectRoot.split('/').pop()}
                     </span>
                 )}
             </div>
@@ -50,14 +51,14 @@ export function StatusBar() {
                         <button
                             className="encoding-toggle active"
                             onClick={handleEncodingToggle}
-                            title={`Current: ${activeTab.encoding.toUpperCase()}\nClick to cycle encodings`}
+                            title={`Current: ${activeTab.encoding.toUpperCase()}\nClick to toggle encoding`}
                         >
-                            🔤 {activeTab.encoding.toUpperCase()}
+                            <EncodingIcon size={14} /> {activeTab.encoding.toUpperCase()}
                         </button>
 
                         {activeTab.isDirty && (
                             <span className="status-item" style={{ color: 'var(--accent-orange)' }}>
-                                ● Modified
+                                <DotIcon color="var(--accent-orange)" /> Modified
                             </span>
                         )}
                     </>

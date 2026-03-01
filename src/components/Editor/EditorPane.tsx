@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useEffect, useState } from 'react'
 import Editor, { OnMount } from '@monaco-editor/react'
 import { useEditorStore, OpenTab } from '../../stores/editorStore'
 import { TabularView } from '../TabularView/TabularView'
+import { GridIcon, TextIcon, FileIcon } from '../Icons'
 
 interface EditorPaneProps {
     tab: OpenTab | null
@@ -131,7 +132,7 @@ export function EditorPane({ tab }: EditorPaneProps) {
         return (
             <div className="editor-pane">
                 <div className="empty-state">
-                    <div className="empty-state-icon">📝</div>
+                    <div className="empty-state-icon"><FileIcon size={32} /></div>
                     <span>Select a file to edit</span>
                 </div>
             </div>
@@ -144,7 +145,7 @@ export function EditorPane({ tab }: EditorPaneProps) {
             <div className="editor-pane">
                 <div className="tabular-toolbar">
                     <button className="toggle-view" onClick={() => setShowGrid(false)}>
-                        📝 Switch to Text View
+                        <TextIcon size={14} /> Switch to Text View
                     </button>
                     <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                         Grid View — {tab.encoding.toUpperCase()}
@@ -164,7 +165,7 @@ export function EditorPane({ tab }: EditorPaneProps) {
             {tab.isTabular && (
                 <div className="tabular-toolbar">
                     <button className="toggle-view" onClick={() => setShowGrid(true)}>
-                        📊 Switch to Grid View
+                        <GridIcon size={14} /> Switch to Grid View
                     </button>
                     <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                         Text View — {tab.encoding.toUpperCase()}

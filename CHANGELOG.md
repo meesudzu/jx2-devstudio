@@ -58,6 +58,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 ### Changed
 - **Encoding Toggle** — now only cycles between GB18030 ↔ Windows-1252 (removed UTF-8 from cycle)
 - **Encoding Detection** — removed file-extension bias; both `.lua` and `.txt` can be either GB18030 or Windows-1252, detection uses pure byte-pattern heuristics
+- **Icons** — replaced all emoji icons with inline SVG components for Linux/WSL compatibility (emojis render as empty squares without emoji fonts)
 
 ### Planned
 - **Remote Connection** (v1.6.0) — WSL/SSH backend for remote file access, terminal, log watching

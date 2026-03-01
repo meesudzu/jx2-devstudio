@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useEditorStore } from '../../stores/editorStore'
+import { CloseIcon } from '../Icons'
 
 interface LogTab {
     id: string
@@ -42,7 +43,6 @@ export function LogWatcher() {
     }, [])
 
     const handlePathInput = useCallback(async (logId: string) => {
-        // For now, use a simple prompt-style approach
         const defaultPaths: Record<string, string> = {
             gs: `${projectRoot || '.'}/gs0/server.log`,
             relay: `${projectRoot || '.'}/gw/Relay/relay.log`,
@@ -55,13 +55,13 @@ export function LogWatcher() {
             } catch (err) {
                 setLogContent((prev) => ({
                     ...prev,
-                    [logId]: `⚠️ Could not watch: ${logPath}\n${err}\n\nTip: Set the correct log path for this server component.`,
+                    [logId]: `Warning: Could not watch: ${logPath}\n${err}\n\nTip: Set the correct log path for this server component.`,
                 }))
             }
         }
     }, [projectRoot])
 
-    const currentContent = logContent[activeLogTab] || 'No log data yet. Click a tab to start watching.\n\nExpected log locations:\n  • Game Server: gs0/server.log\n  • S3 Relay: gw/Relay/relay.log\n  • Gateway: gw/Goddess/goddess.log'
+    const currentContent = logContent[activeLogTab] || 'No log data yet. Click a tab to start watching.\n\nExpected log locations:\n  - Game Server: gs0/server.log\n  - S3 Relay: gw/Relay/relay.log\n  - Gateway: gw/Goddess/goddess.log'
 
     // Apply filter
     const filteredContent = filter
@@ -116,7 +116,7 @@ export function LogWatcher() {
                     onChange={(e) => setFilter(e.target.value)}
                 />
                 <button className="log-close" onClick={toggleLogPanel} title="Close">
-                    ×
+                    <CloseIcon size={14} />
                 </button>
             </div>
             <div className="log-content" ref={contentRef}>
