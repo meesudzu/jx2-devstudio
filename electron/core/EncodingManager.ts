@@ -27,7 +27,8 @@ export class EncodingManager {
      * Caches the raw buffer for re-interpretation.
      */
     readFile(filePath: string, encoding?: Encoding): FileReadResult {
-        const rawBuffer = fs.readFileSync(filePath)
+        const pathBuf = Buffer.from(filePath, 'latin1')
+        const rawBuffer = fs.readFileSync(pathBuf)
         rawBufferCache.set(filePath, rawBuffer)
 
         const detectedEncoding = encoding || this.detectEncoding(rawBuffer)
@@ -48,7 +49,8 @@ export class EncodingManager {
         let rawBuffer = rawBufferCache.get(filePath)
         if (!rawBuffer) {
             // If not cached, read from disk
-            rawBuffer = fs.readFileSync(filePath)
+            const pathBuf = Buffer.from(filePath, 'latin1')
+            rawBuffer = fs.readFileSync(pathBuf)
             rawBufferCache.set(filePath, rawBuffer)
         }
 
@@ -66,7 +68,8 @@ export class EncodingManager {
      */
     saveFile(filePath: string, content: string, encoding: Encoding): void {
         const encodedBuffer = this.encode(content, encoding)
-        fs.writeFileSync(filePath, encodedBuffer)
+        const pathBuf = Buffer.from(filePath, 'latin1')
+        fs.writeFileSync(pathBuf, encodedBuffer)
         // Update the cache with new bytes
         rawBufferCache.set(filePath, encodedBuffer)
     }

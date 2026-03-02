@@ -20,7 +20,7 @@ export function registerFileHandlers(ipcMain: IpcMain) {
     // Read a file with specified or auto-detected encoding
     ipcMain.handle('file:read', (_event, filePath: string, encoding?: Encoding) => {
         try {
-            const rawBuffer = fs.readFileSync(filePath)
+            const rawBuffer = fs.readFileSync(Buffer.from(filePath, 'latin1'))
             const detectedEncoding = encoding || encodingManager.detectEncodingWithHint(rawBuffer, filePath)
             const result = encodingManager.readFile(filePath, detectedEncoding)
             return result
@@ -40,14 +40,17 @@ export function registerFileHandlers(ipcMain: IpcMain) {
 
     // Helper to resolve duplicate file names by appending (1), (2), etc.
     const resolveDuplicatePath = (targetPath: string): string => {
-        if (!fs.existsSync(targetPath)) return targetPath
+        const targetBuf = Buffer.from(targetPath, 'latin1')
+        if (!fs.existsSync(targetBuf)) return targetPath
 
         const parsed = path.parse(targetPath)
         let newPath = targetPath
+        let newPathBuf = targetBuf
         let counter = 1
 
-        while (fs.existsSync(newPath)) {
+        while (fs.existsSync(newPathBuf)) {
             newPath = path.join(parsed.dir, `${parsed.name} (${counter})${parsed.ext}`)
+            newPathBuf = Buffer.from(newPath, 'latin1')
             counter++
         }
         return newPath
@@ -57,10 +60,11 @@ export function registerFileHandlers(ipcMain: IpcMain) {
     ipcMain.handle('file:create', (_event, targetPath: string, isDirectory: boolean) => {
         try {
             const finalPath = resolveDuplicatePath(targetPath)
+            const finalBuf = Buffer.from(finalPath, 'latin1')
             if (isDirectory) {
-                fs.mkdirSync(finalPath, { recursive: true })
+                fs.mkdirSync(finalBuf, { recursive: true })
             } else {
-                fs.writeFileSync(finalPath, '')
+                fs.writeFileSync(finalBuf, '')
             }
         } catch (err: any) {
             throw new Error(`Failed to create: ${err.message}`)
@@ -71,7 +75,7 @@ export function registerFileHandlers(ipcMain: IpcMain) {
     ipcMain.handle('file:rename', (_event, oldPath: string, newPath: string) => {
         try {
             const finalPath = resolveDuplicatePath(newPath)
-            fs.renameSync(oldPath, finalPath)
+            fs.renameSync(Buffer.from(oldPath, 'latin1'), Buffer.from(finalPath, 'latin1'))
         } catch (err: any) {
             throw new Error(`Failed to rename: ${err.message}`)
         }
@@ -80,17 +84,37 @@ export function registerFileHandlers(ipcMain: IpcMain) {
     // Delete a file or directory
     ipcMain.handle('file:delete', (_event, targetPath: string) => {
         try {
-            fs.rmSync(targetPath, { recursive: true, force: true })
+            fs.rmSync(Buffer.from(targetPath, 'latin1'), { recursive: true, force: true })
+            encodingManager.evictCache(targetPath)
         } catch (err: any) {
             throw new Error(`Failed to delete: ${err.message}`)
         }
     })
 
+    // Custom recursive copy because fs.cpSync doesn't support Buffer paths
+    const copyRecursiveSync = (src: Buffer, dest: Buffer) => {
+        const stat = fs.statSync(src)
+        if (stat.isDirectory()) {
+            if (!fs.existsSync(dest)) {
+                fs.mkdirSync(dest, { recursive: true })
+            }
+            const entries = fs.readdirSync(src, { encoding: 'buffer', withFileTypes: true })
+            for (const entry of entries) {
+                // To join, we can just concat the Buffers with a slash
+                const srcPath = Buffer.concat([src, Buffer.from('/'), entry.name])
+                const destPath = Buffer.concat([dest, Buffer.from('/'), entry.name])
+                copyRecursiveSync(srcPath, destPath)
+            }
+        } else {
+            fs.copyFileSync(src, dest)
+        }
+    }
+
     // Copy a file or directory
     ipcMain.handle('file:copy', (_event, sourcePath: string, targetPath: string) => {
         try {
             const finalPath = resolveDuplicatePath(targetPath)
-            fs.cpSync(sourcePath, finalPath, { recursive: true })
+            copyRecursiveSync(Buffer.from(sourcePath, 'latin1'), Buffer.from(finalPath, 'latin1'))
         } catch (err: any) {
             throw new Error(`Failed to copy: ${err.message}`)
         }
@@ -121,7 +145,8 @@ export function registerFileHandlers(ipcMain: IpcMain) {
             title: 'Open JX2 Project Folder',
         })
         if (result.canceled || result.filePaths.length === 0) return null
-        return result.filePaths[0]
+        // Encode UTF-8 OS string to a latin1 string representing raw bytes
+        return Buffer.from(result.filePaths[0], 'utf8').toString('latin1')
     })
 }
 
@@ -132,18 +157,22 @@ function listDirectoryRecursive(dirPath: string, depth: number): FileEntry[] {
     const entries: FileEntry[] = []
 
     try {
-        const dirEntries = fs.readdirSync(dirPath, { withFileTypes: true })
+        const dirBuf = Buffer.from(dirPath, 'latin1')
+        const dirEntries = fs.readdirSync(dirBuf, { withFileTypes: true, encoding: 'buffer' })
 
         for (const entry of dirEntries) {
             // Skip hidden files/dirs
-            if (entry.name.startsWith('.')) continue
+            if (entry.name[0] === 0x2e) continue // 0x2e is '.'
 
-            const fullPath = path.join(dirPath, entry.name)
+            const nameLatin1 = entry.name.toString('latin1')
+            const fullPath = path.join(dirPath, nameLatin1)
+            const fullPathBuf = Buffer.from(fullPath, 'latin1')
+
             const displayName = encodingManager.decodeFilename(entry.name)
-            const ext = path.extname(entry.name).toLowerCase()
+            const ext = path.extname(nameLatin1).toLowerCase()
 
             const fileEntry: FileEntry = {
-                name: entry.name,
+                name: nameLatin1,
                 displayName,
                 path: fullPath,
                 isDirectory: entry.isDirectory(),
@@ -154,7 +183,7 @@ function listDirectoryRecursive(dirPath: string, depth: number): FileEntry[] {
             if (entry.isDirectory() && depth > 0) {
                 try {
                     // Just check if it has children, don't fully expand
-                    const childCount = fs.readdirSync(fullPath).length
+                    const childCount = fs.readdirSync(fullPathBuf).length
                     fileEntry.children = childCount > 0 ? [] : undefined
                 } catch {
                     // Can't read directory

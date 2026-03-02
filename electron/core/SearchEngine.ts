@@ -116,10 +116,11 @@ export class SearchEngine {
         filePath: string,
         queryBytes: Map<Encoding, Buffer>,
     ): SearchMatch[] {
-        const stat = fs.statSync(filePath)
+        const pathBuf = Buffer.from(filePath, 'latin1')
+        const stat = fs.statSync(pathBuf)
         if (stat.size > this.MAX_FILE_SIZE) return []
 
-        const fileBuffer = fs.readFileSync(filePath)
+        const fileBuffer = fs.readFileSync(pathBuf)
         const matches: SearchMatch[] = []
         // Track matched byte offsets to avoid duplicates
         const matchedOffsets = new Set<number>()
@@ -229,15 +230,17 @@ export class SearchEngine {
 
         const walk = (dir: string) => {
             try {
-                const entries = fs.readdirSync(dir, { withFileTypes: true })
+                const dirBuf = Buffer.from(dir, 'latin1')
+                const entries = fs.readdirSync(dirBuf, { withFileTypes: true, encoding: 'buffer' })
                 for (const entry of entries) {
-                    const fullPath = path.join(dir, entry.name)
+                    const nameLatin1 = entry.name.toString('latin1')
+                    const fullPath = path.join(dir, nameLatin1)
                     if (entry.isDirectory()) {
                         // Skip hidden directories and common non-source directories
-                        if (entry.name.startsWith('.') || entry.name === 'node_modules') continue
+                        if (nameLatin1.startsWith('.') || nameLatin1 === 'node_modules') continue
                         walk(fullPath)
                     } else if (entry.isFile()) {
-                        const ext = path.extname(entry.name).toLowerCase()
+                        const ext = path.extname(nameLatin1).toLowerCase()
                         if (extensions.has(ext)) {
                             files.push(fullPath)
                         }

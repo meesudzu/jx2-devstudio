@@ -29,13 +29,14 @@ export function registerLogHandlers(ipcMain: IpcMain, mainWindow: BrowserWindow)
             // Get initial file size
             let lastSize = 0
             try {
-                const stat = fs.statSync(logPath)
+                const logBuf = Buffer.from(logPath, 'latin1')
+                const stat = fs.statSync(logBuf)
                 lastSize = stat.size
 
                 // Send last 4KB of existing content
                 const tailSize = Math.min(stat.size, 4096)
                 const buffer = Buffer.alloc(tailSize)
-                const fd = fs.openSync(logPath, 'r')
+                const fd = fs.openSync(logBuf, 'r')
                 fs.readSync(fd, buffer, 0, tailSize, stat.size - tailSize)
                 fs.closeSync(fd)
 
@@ -54,12 +55,13 @@ export function registerLogHandlers(ipcMain: IpcMain, mainWindow: BrowserWindow)
 
             watcher.on('change', (filePath) => {
                 try {
-                    const stat = fs.statSync(filePath)
+                    const fileBuf = Buffer.from(filePath, 'latin1')
+                    const stat = fs.statSync(fileBuf)
                     if (stat.size > lastSize) {
                         // Read only new bytes
                         const newBytes = stat.size - lastSize
                         const buffer = Buffer.alloc(newBytes)
-                        const fd = fs.openSync(filePath, 'r')
+                        const fd = fs.openSync(fileBuf, 'r')
                         fs.readSync(fd, buffer, 0, newBytes, lastSize)
                         fs.closeSync(fd)
 
@@ -68,7 +70,7 @@ export function registerLogHandlers(ipcMain: IpcMain, mainWindow: BrowserWindow)
                         lastSize = stat.size
                     } else if (stat.size < lastSize) {
                         // File was truncated/rotated — read from beginning
-                        const buffer = fs.readFileSync(filePath)
+                        const buffer = fs.readFileSync(fileBuf)
                         const content = buffer.toString('utf-8')
                         mainWindow.webContents.send('log:data', id, '\n--- Log rotated ---\n' + content)
                         lastSize = stat.size
